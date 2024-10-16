@@ -10,6 +10,7 @@ use directory::path_map::PathMap;
 use once_cell::sync::Lazy;
 use std::sync::Mutex;
 use std::env;  // Import env module to access command-line arguments
+use logger::logger::LOGGER; //import the logger
 
 static DEPTH: Lazy<Mutex<i32>> = Lazy::new(|| Mutex::new(0));
 
@@ -22,13 +23,19 @@ fn main() {
     } else {
         0
     };
+    
+    // Log the application mode
+    let mut logger = LOGGER.lock().unwrap(); // Lock the global logger
 
     if state == 0 {
         println!("Running in terminal mode");
+        logger.log_info("Running in terminal mode".to_string());
     } else if state == 1 {
         println!("Running in GUI mode");
+        logger.log_info("Running in GUI mode".to_string());
     } else {
         println!("Unknown mode: {}", state);
+        logger.log_warning(format!("Unknown mode: {}", state));
     }
 
     let mut path_map = PathMap::new();

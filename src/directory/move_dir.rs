@@ -3,7 +3,8 @@ use crate::directory::path_map::PathMap;
 use crate::directory::folder::Folder; // Import from folder module
 use crate::directory::file::File; // Import from file module
 use crate::directory::path_type::PathType; // Import PathType for determining file/folder types
-use crate::directory::path::discover_children;
+use crate::directory::path;
+use crate::logger::logger::LOGGER;
 use std::path::Path;
 use std::rc::Rc;
 use std::cell::RefCell;
@@ -25,7 +26,7 @@ pub fn change_pwd(url: &str, path_map: &mut PathMap, pwd_index: i32) {
         let new_folder = generate_new_folder(path, path_map, pwd_index);
 
         // Discover children of the folder
-        discover_children(&new_folder, path_map, pwd_index);
+        path::discover_children(&new_folder, path_map, pwd_index);
     }
 }
 

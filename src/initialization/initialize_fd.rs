@@ -7,7 +7,7 @@ pub fn init(path_map: &mut PathMap) -> String {
     println!("App: {}, Version: {}, OS: {}", CONFIG.app_name, CONFIG.version, CONFIG.os);
     
     // Define the initial URL to start from, e.g., the root directory 'C:/'
-    let url = "C:/";
+    let url = "C:/Test/";
 
     // Use the move_dir's change_pwd function to initialize and move to the first directory
     move_dir::change_pwd(url, path_map, 0);  // Passing URL and PathMap reference

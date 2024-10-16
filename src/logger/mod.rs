@@ -1,1 +1,1 @@
-pub mod ftr_directory_logger;
+pub mod logger;

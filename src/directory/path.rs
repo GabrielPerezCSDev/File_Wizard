@@ -13,17 +13,18 @@ use crate::directory::path_type::PathType;
 use crate::directory::folder::Folder; // Use Folder from folder.rs
 use crate::directory::file::File; // Use File from file.rs
 use crate::directory::metadata::{file_specific_metadata, folder_specific_metadata}; // Metadata imports
-use crate::logger::ftr_directory_logger::DirectoryLogger;
+use crate::logger::logger::LOGGER;
 
 // Static mutable counter to track recursive calls
 static RECURSION_COUNT: Lazy<Mutex<i32>> = Lazy::new(|| Mutex::new(0));
 // Static mutable counter 
 static PATH_COUNT: Lazy<Mutex<i32>> = Lazy::new(|| Mutex::new(0));
 
-/// Discovers children of the folder recursively
+/// Discovers children of the folder recursively (maybe do for depth 5)
 pub fn discover_children(folder: &Rc<RefCell<Folder>>, path_map: &mut PathMap, pwd_index: i32) {
+    
     // Check if we've reached the depth limit before reading directory
-    if folder.borrow().index >= pwd_index + 2 {
+    if folder.borrow().index >= pwd_index + 3 {
         return; // Exit early since we shouldn't recurse deeper
     }
 
@@ -73,7 +74,10 @@ pub fn discover_children(folder: &Rc<RefCell<Folder>>, path_map: &mut PathMap, p
                         discover_children(&subfolder_rc, path_map, pwd_index);
                     }
                     PathType::None => {
-                        logger.log_failed_directory(folder_url); // Log the failure
+                        {
+                        let mut logger = LOGGER.lock().unwrap(); // Lock the global logger
+                        logger.log_failed_directory(format!("bello: {}", folder_url)); // Log the failure
+                        }
                     }
                 }
             }
