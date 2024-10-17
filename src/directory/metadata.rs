@@ -4,6 +4,8 @@ use std::path::Path;
 use std::fs::{self, Metadata};
 use std::time::UNIX_EPOCH;
 use std::ffi::OsStr;
+use chrono::{DateTime, Local};
+use std::time::SystemTime;
 
 // Extract common metadata for both files and folders
 pub fn file_folder_metadata(metadata: &mut HashMap<String, String>, path: &Path) {
@@ -18,15 +20,17 @@ pub fn file_folder_metadata(metadata: &mut HashMap<String, String>, path: &Path)
 
 // Insert size into metadata
 fn insert_size(metadata: &mut HashMap<String, String>, meta: &Metadata) {
-    metadata.insert("size".to_string(), meta.len().to_string());
+    let size_in_bytes = meta.len();
+    let readable_size = format_size(size_in_bytes);
+    metadata.insert("size".to_string(), readable_size);
 }
 
 // Insert creation time into metadata
 fn insert_creation_time(metadata: &mut HashMap<String, String>, meta: &Metadata) {
     if let Ok(created) = meta.created() {
-        if let Ok(duration) = created.duration_since(UNIX_EPOCH) {
-            metadata.insert("created".to_string(), format!("{:?}", duration.as_secs()));
-        }
+        let datetime: DateTime<Local> = created.into();
+        let formatted_time = datetime.format("%Y-%m-%d %H:%M:%S").to_string();
+        metadata.insert("created".to_string(), formatted_time);
     } else {
         metadata.insert("created".to_string(), "N/A".to_string());
     }
@@ -35,9 +39,11 @@ fn insert_creation_time(metadata: &mut HashMap<String, String>, meta: &Metadata)
 // Insert last modified time into metadata
 fn insert_modification_time(metadata: &mut HashMap<String, String>, meta: &Metadata) {
     if let Ok(modified) = meta.modified() {
-        if let Ok(duration) = modified.duration_since(UNIX_EPOCH) {
-            metadata.insert("modified".to_string(), format!("{:?}", duration.as_secs()));
-        }
+        let datetime: DateTime<Local> = modified.into();
+        let formatted_time = datetime.format("%Y-%m-%d %H:%M:%S").to_string();
+        metadata.insert("modified".to_string(), formatted_time);
+    } else {
+        metadata.insert("modified".to_string(), "N/A".to_string());
     }
 }
 
@@ -62,12 +68,12 @@ fn insert_file_extension(metadata: &mut HashMap<String, String>, path: &Path) {
 }
 
 // Folder-specific metadata
-pub fn folder_specific_metadata(metadata: &mut HashMap<String, String>, path: &Path) {
+pub fn folder_specific_metadata(metadata: &mut HashMap<String, String>, path: &Path) {;
     file_folder_metadata(metadata, path);
 
     if let Ok(meta) = fs::metadata(path) {
         if meta.is_dir() {
-            metadata.insert("is_directory".to_string(), "true".to_string());
+            //metadata.insert("is_directory".to_string(), "true".to_string());
         }
     }
 }
@@ -86,5 +92,30 @@ pub fn is_accessible(metadata: &Metadata) -> bool {
     {
         // On Windows, permissions are more complex. A simple heuristic could be:
         !metadata.permissions().readonly() // Check if the entry is read-only
+    }
+}
+
+// Function to format file sizes into human-readable strings
+fn format_size(bytes: u64) -> String {
+    const KB: f64 = 1024.0;
+    const MB: f64 = KB * 1024.0;
+    const GB: f64 = MB * 1024.0;
+    const TB: f64 = GB * 1024.0;
+    const PB: f64 = TB * 1024.0;
+
+    let size = bytes as f64;
+
+    if size < KB {
+        format!("{} bytes", bytes)
+    } else if size < MB {
+        format!("{:.2} KB", size / KB)
+    } else if size < GB {
+        format!("{:.2} MB", size / MB)
+    } else if size < TB {
+        format!("{:.2} GB", size / GB)
+    } else if size < PB {
+        format!("{:.2} TB", size / TB)
+    } else {
+        format!("{:.2} PB", size / PB)
     }
 }

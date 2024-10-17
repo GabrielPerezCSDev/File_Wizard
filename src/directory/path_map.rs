@@ -5,7 +5,7 @@ use std::cell::RefCell;
 use crate::directory::path_type::PathType; // Moved PathType to a separate module
 use crate::directory::file::File; // Import File from the file module
 use crate::directory::folder::Folder; // Import Folder from the folder module
-
+use std::sync::{Arc, Mutex};
 /// PathMap struct to keep track of folders and files by their path
 pub struct PathMap {
     pub map: HashMap<String, PathType>, // Maps the path string to a PathType (either a File or Folder)
@@ -20,7 +20,7 @@ impl PathMap {
     }
 
     /// Inserts a folder into the map
-    pub fn add_folder(&mut self, name: &str, folder: Rc<RefCell<Folder>>) {
+    pub fn add_folder(&mut self, name: &str, folder: Arc<Mutex<Folder>>) {
         self.map.insert(name.to_string(), PathType::Folder(folder));
     }
 

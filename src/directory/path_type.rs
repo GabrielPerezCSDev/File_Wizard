@@ -1,6 +1,7 @@
 // Import necessary types
 use std::rc::Rc;
 use std::cell::RefCell;
+use std::sync::{Arc, Mutex};
 use crate::directory::file::File; // Import File from the file module
 use crate::directory::folder::Folder; // Import Folder from the folder module
 
@@ -8,6 +9,6 @@ use crate::directory::folder::Folder; // Import Folder from the folder module
 #[derive(Clone)]
 pub enum PathType {
     File(File),                           // Represents a file
-    Folder(Rc<RefCell<Folder>>),          // Represents a folder wrapped in Rc<RefCell> for shared mutable ownership
+    Folder(Arc<Mutex<Folder>>),          // Represents a folder wrapped in Rc<RefCell> for shared mutable ownership
     None,                                 // Represents no valid path (e.g., when something is missing or inaccessible)
 }

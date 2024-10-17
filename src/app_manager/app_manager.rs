@@ -20,6 +20,7 @@ pub struct AppManager {
     input_processor: Box<dyn InputProcessor>,   // Dynamic input processor
     view_controller: Box<dyn ViewController>,   // Dynamic view controller
     view: Rc<RefCell<Box<dyn View>>>,
+    pwd: String,
 }
 
 impl AppManager {
@@ -34,6 +35,7 @@ impl AppManager {
             input_processor,
             view_controller,
             view,
+            pwd: String::new(),
         };
 
         // Set the actual view type based on the state
@@ -68,13 +70,21 @@ impl AppManager {
     }
 
     // Process input dynamically based on the view type and return whether to continue or not
-    pub fn process_input(&self, input: String, path_map: &mut PathMap, url: &mut String) -> bool {
-        self.input_processor.process_input(input, path_map, url, &self.view)
+    pub fn process_input(&mut self, input: String, path_map: &mut PathMap) -> bool {
+        self.input_processor.process_input(input, path_map, &mut self.pwd, &self.view)
     }
 
     // Display output or view through the current view controller
-    pub fn display_view(&self, path_map: &PathMap, url: &str) {
-        self.view_controller.show_view(path_map, url);
+    pub fn display_view(&self, path_map: &PathMap) {
+        self.view_controller.show_view(path_map, &self.pwd);
+    }
+
+    pub fn get_pwd(&self) -> &str {
+        &self.pwd
+    }
+
+    pub fn set_pwd(&mut self, new_pwd: String) {
+        self.pwd = new_pwd;
     }
 }
 

@@ -109,3 +109,144 @@
 
 ==== Logger Initialized at 2024-10-16 21:40:40 ====
 [2024-10-16 21:40:40] [INFO] Running in terminal mode
+
+==== Logger Initialized at 2024-10-16 21:42:54 ====
+[2024-10-16 21:42:54] [INFO] Running in terminal mode
+
+==== Logger Initialized at 2024-10-16 21:44:59 ====
+[2024-10-16 21:44:59] [INFO] Running in terminal mode
+
+==== Logger Initialized at 2024-10-16 21:48:37 ====
+[2024-10-16 21:48:37] [INFO] Running in terminal mode
+
+==== Logger Initialized at 2024-10-16 21:50:09 ====
+[2024-10-16 21:50:09] [INFO] Running in terminal mode
+
+==== Logger Initialized at 2024-10-16 22:24:36 ====
+[2024-10-16 22:24:36] [INFO] Running in terminal mode
+
+==== Logger Initialized at 2024-10-16 22:26:01 ====
+[2024-10-16 22:26:01] [INFO] Running in terminal mode
+
+==== Logger Initialized at 2024-10-16 22:27:16 ====
+[2024-10-16 22:27:16] [INFO] Running in terminal mode
+
+==== Logger Initialized at 2024-10-16 22:34:38 ====
+[2024-10-16 22:34:38] [INFO] Running in terminal mode
+
+==== Logger Initialized at 2024-10-16 22:35:04 ====
+[2024-10-16 22:35:04] [INFO] Running in terminal mode
+
+==== Logger Initialized at 2024-10-16 22:42:11 ====
+[2024-10-16 22:42:11] [INFO] Running in terminal mode
+
+==== Logger Initialized at 2024-10-16 22:46:27 ====
+[2024-10-16 22:46:27] [INFO] Running in terminal mode
+
+==== Logger Initialized at 2024-10-16 23:05:52 ====
+[2024-10-16 23:05:52] [INFO] Running in terminal mode
+
+==== Logger Initialized at 2024-10-16 23:08:01 ====
+[2024-10-16 23:08:01] [INFO] Running in terminal mode
+
+==== Logger Initialized at 2024-10-16 23:08:43 ====
+[2024-10-16 23:08:43] [INFO] Running in terminal mode
+
+==== Logger Initialized at 2024-10-16 23:14:29 ====
+[2024-10-16 23:14:29] [INFO] Running in terminal mode
+
+==== Logger Initialized at 2024-10-16 23:14:52 ====
+[2024-10-16 23:14:52] [INFO] Running in terminal mode
+
+==== Logger Initialized at 2024-10-16 23:17:15 ====
+[2024-10-16 23:17:15] [INFO] Running in terminal mode
+
+==== Logger Initialized at 2024-10-16 23:17:31 ====
+[2024-10-16 23:17:31] [INFO] Running in terminal mode
+
+==== Logger Initialized at 2024-10-16 23:19:59 ====
+[2024-10-16 23:19:59] [INFO] Running in terminal mode
+
+==== Logger Initialized at 2024-10-16 23:22:50 ====
+[2024-10-16 23:22:50] [INFO] Running in terminal mode
+
+==== Logger Initialized at 2024-10-16 23:32:54 ====
+[2024-10-16 23:32:54] [INFO] Running in terminal mode
+
+==== Logger Initialized at 2024-10-16 23:34:33 ====
+[2024-10-16 23:34:33] [INFO] Running in terminal mode
+
+==== Logger Initialized at 2024-10-16 23:36:04 ====
+[2024-10-16 23:36:04] [INFO] Running in terminal mode
+
+==== Logger Initialized at 2024-10-16 23:43:29 ====
+[2024-10-16 23:43:29] [INFO] Running in terminal mode
+
+==== Logger Initialized at 2024-10-16 23:47:41 ====
+[2024-10-16 23:47:41] [INFO] Running in terminal mode
+
+==== Logger Initialized at 2024-10-16 23:48:40 ====
+[2024-10-16 23:48:40] [INFO] Running in terminal mode
+
+==== Logger Initialized at 2024-10-17 00:01:42 ====
+[2024-10-17 00:01:42] [INFO] Running in terminal mode
+
+==== Logger Initialized at 2024-10-17 00:03:38 ====
+[2024-10-17 00:03:38] [INFO] Running in terminal mode
+
+==== Logger Initialized at 2024-10-17 00:06:48 ====
+[2024-10-17 00:06:48] [INFO] Running in terminal mode
+
+==== Logger Initialized at 2024-10-17 00:08:05 ====
+[2024-10-17 00:08:05] [INFO] Running in terminal mode
+
+==== Logger Initialized at 2024-10-17 00:09:49 ====
+[2024-10-17 00:09:49] [INFO] Running in terminal mode
+
+==== Logger Initialized at 2024-10-17 00:09:58 ====
+[2024-10-17 00:09:58] [INFO] Running in terminal mode
+
+==== Logger Initialized at 2024-10-17 00:10:52 ====
+[2024-10-17 00:10:52] [INFO] Running in terminal mode
+
+==== Logger Initialized at 2024-10-17 00:11:45 ====
+[2024-10-17 00:11:45] [INFO] Running in terminal mode
+
+==== Logger Initialized at 2024-10-17 00:25:28 ====
+[2024-10-17 00:25:28] [INFO] Running in terminal mode
+
+==== Logger Initialized at 2024-10-17 00:26:52 ====
+[2024-10-17 00:26:52] [INFO] Running in terminal mode
+
+==== Logger Initialized at 2024-10-17 00:27:42 ====
+[2024-10-17 00:27:42] [INFO] Running in terminal mode
+
+==== Logger Initialized at 2024-10-17 00:29:09 ====
+[2024-10-17 00:29:09] [INFO] Running in terminal mode
+
+==== Logger Initialized at 2024-10-17 00:32:44 ====
+[2024-10-17 00:32:44] [INFO] Running in terminal mode
+
+==== Logger Initialized at 2024-10-17 00:33:21 ====
+[2024-10-17 00:33:21] [INFO] Running in terminal mode
+
+==== Logger Initialized at 2024-10-17 00:34:23 ====
+[2024-10-17 00:34:23] [INFO] Running in terminal mode
+
+==== Logger Initialized at 2024-10-17 00:35:10 ====
+[2024-10-17 00:35:10] [INFO] Running in terminal mode
+
+==== Logger Initialized at 2024-10-17 00:38:09 ====
+[2024-10-17 00:38:09] [INFO] Running in terminal mode
+
+==== Logger Initialized at 2024-10-17 00:45:34 ====
+[2024-10-17 00:45:34] [INFO] Running in terminal mode
+
+==== Logger Initialized at 2024-10-17 00:47:11 ====
+[2024-10-17 00:47:11] [INFO] Running in terminal mode
+
+==== Logger Initialized at 2024-10-17 00:52:04 ====
+[2024-10-17 00:52:04] [INFO] Running in terminal mode
+
+==== Logger Initialized at 2024-10-17 01:35:20 ====
+[2024-10-17 01:35:20] [INFO] Running in terminal mode

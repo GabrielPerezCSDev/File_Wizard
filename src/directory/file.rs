@@ -3,6 +3,7 @@ use std::path::Path;
 use std::collections::HashMap;
 use crate::directory::path_map::PathMap;
 use crate::directory::folder::Folder; // Import Folder since File references Folder
+use std::sync::{Arc, Mutex};
 use std::rc::Rc;
 use std::cell::RefCell;
 
@@ -14,14 +15,14 @@ use crate::directory::metadata::file_specific_metadata;
 pub struct File {
     pub name: String,
     pub url: String,
-    pub parent: Option<Rc<RefCell<Folder>>>, // Use Rc<RefCell> for parent reference
+    pub parent: Option<Arc<Mutex<Folder>>>,
     pub metadata: HashMap<String, String>,
 }
 
 // Implement the File struct
 impl File {
     // Constructor that accepts a Path and creates a File instance
-    pub fn new(path: &Path, parent: Option<Rc<RefCell<Folder>>>, path_map: &mut PathMap) -> Self {
+    pub fn new(path: &Path, parent: Option<Arc<Mutex<Folder>>>, path_map: &mut PathMap) -> Self {
         // Extract the file name from the path
         let name = path.file_name()
             .and_then(|os_str| os_str.to_str())
@@ -47,5 +48,9 @@ impl File {
         path_map.add_file(&url, file.clone());
 
         file
+    }
+
+    pub fn get_metadata(&self) -> &HashMap<String, String> {
+        &self.metadata
     }
 }

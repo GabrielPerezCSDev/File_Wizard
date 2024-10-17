@@ -5,7 +5,7 @@ use crate::directory::file::File;
 use crate::initialization::config::CONFIG;
 use crate::view::view::View;
 use std::any::Any;
-
+use std::borrow::Borrow;
 pub enum TerminalViews {
     Init,
     Choose,
@@ -53,54 +53,70 @@ impl TerminalView {
             current_view: TerminalViews::Init, // Set current_view to Init when created
         }
     }
+    pub fn print_direc(&self, path_map: &PathMap, url: &str, depth: usize, max_depth: usize) {
+    // Check if the current depth exceeds the maximum allowed depth
+    if depth > max_depth {
+        return;
+    }
 
-    pub fn print_direc(&self, path_map: &PathMap, url: &str, depth: usize) {
-        // Print the directory and its children recursively (DFS)
-        if let Some(path_type) = path_map.get_path(&url) {
-            match path_type {
-                PathType::Folder(folder_rc) => {
-                    // Borrow the folder so we can access its fields
-                    let folder = folder_rc.borrow();
+    // Print the directory and its children recursively (DFS)
+    if let Some(path_type) = path_map.get_path(&url) {
+        match path_type {
+            PathType::Folder(folder_rc) => {
+                // Borrow the folder so we can access its fields
+                let folder = folder_rc.lock().unwrap();
 
-                    // Print root folder with indentation based on depth level
-                    self.print_offset(depth);
-                    println!("Folder: {}", folder.url);
-                    println!("Number of children: {}", folder.children.len());
-
-                    // Iterate through the folder's children
-                    for child in &folder.children {
-                        match child {
-                            PathType::File(file) => {
-                                // Print the file with the correct indentation
-                                self.print_offset(depth + 1);
-                                println!("{}", file.url);
+                // Print root folder with indentation based on depth level
+                self.print_offset(depth);
+                println!("Folder: {} => size: ", folder.url /*,(String) folder.metadata.get("size")*/);
+                // Print folder metadata
+                for (key, value) in folder.get_metadata() {
+                    self.print_offset(depth + 1);
+                    println!("{}: {}", key, value);
+                }
+                // Iterate through the folder's children
+                
+                for child in &folder.children {
+                    match child {
+                        PathType::File(file) => {
+                            //dont print if if depth = max_depth
+                            if(depth < max_depth){
+                            // Print the file with the correct indentation
+                            self.print_offset(depth + 1);
+                            println!("File: {}", file.url);
                             }
-                            PathType::Folder(subfolder_rc) => {
-                                // Recursively call print_direc on the subfolder with increased depth
-                                let subfolder = subfolder_rc.borrow();
-                                self.print_direc(path_map, &subfolder.url, depth + 1);
-                            }
-                            PathType::None => {
-                                self.print_offset(depth + 1);
-                                println!("None type found");
-                            }
+                        }
+                        PathType::Folder(subfolder_rc) => {
+                            // Recursively call print_direc on the subfolder with increased depth
+                            self.print_direc(
+                                path_map,
+                                &subfolder_rc.lock().unwrap().url,
+                                depth + 1,
+                                max_depth,
+                            );
+                        }
+                        PathType::None => {
+                            self.print_offset(depth + 1);
+                            println!("None type found");
                         }
                     }
                 }
-                PathType::File(file) => {
-                    self.print_offset(depth);
-                    println!("{}", file.url);
-                }
-                PathType::None => {
-                    self.print_offset(depth);
-                    println!("None type: {}", url);
-                }
+                
             }
-        } else {
-            self.print_offset(depth);
-            println!("{}", url);
+            PathType::File(file) => {
+                self.print_offset(depth);
+                println!("File: {}", file.url);
+            }
+            PathType::None => {
+                self.print_offset(depth);
+                println!("None type: {}", url);
+            }
         }
+    } else {
+        self.print_offset(depth);
+        println!("Path not found: {}", url);
     }
+}
 
     // Helper function to print indentation based on the depth level
     fn print_offset(&self, level: usize) {
@@ -126,8 +142,8 @@ impl TerminalView {
     }
 
     pub fn print_directory_screen(&self, path_map: &PathMap, url: &str){
-        println!("Current Directroy: ");
-        self.print_direc(path_map, url, 1)
+        println!("Current Directroy {}: ", url);
+        self.print_direc(path_map, url, 0, 1 );
     }
 
     pub fn print_choose_screen(&self){

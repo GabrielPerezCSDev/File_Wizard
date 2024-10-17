@@ -10,7 +10,7 @@ pub fn init(path_map: &mut PathMap, url: &mut str) -> String {
     //let url = "C:/Test/";
 
     // Use the move_dir's change_pwd function to initialize and move to the first directory
-    move_dir::change_pwd(url, path_map, 0);  // Passing URL and PathMap reference
+    move_dir::validate_and_update_directory(url, path_map, 0);  // Passing URL and PathMap reference
 
     // Return the URL as a string
     url.to_string()

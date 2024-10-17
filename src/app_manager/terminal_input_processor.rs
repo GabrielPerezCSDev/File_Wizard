@@ -1,4 +1,5 @@
 use crate::directory::path_map::PathMap;
+use crate::directory::move_dir;
 use crate::view_controller::view_controller::ViewController;
 use crate::view_controller::terminal_view_controller::TerminalViewController;
 use crate::view::terminal_view::TerminalView;
@@ -18,7 +19,7 @@ impl InputProcessor for TerminalInputProcessor {
         &self,
         input: String,
         _path_map: &mut PathMap,
-        url: &mut String,
+        pwd: &mut String,
         view: &Rc<RefCell<Box<dyn View>>>,
     ) -> bool {
         // Handle the "quit" command to exit the loop
@@ -36,19 +37,19 @@ impl InputProcessor for TerminalInputProcessor {
                 TerminalViews::Init => process_init_screen_input(
                     input,
                     _path_map,
-                    url,
+                    pwd,
                     terminal_view
                 ),
                 TerminalViews::Choose => process_change_screen_input(
                     input,
                     _path_map,
-                    url,
+                    pwd,
                     terminal_view
                 ),
                 TerminalViews::Pwd => process_pwd_screen_input(
                     input,
                     _path_map,
-                    url,
+                    pwd,
                     terminal_view
                 ),
                 _ => panic!("Unexpected view state"),
@@ -74,8 +75,25 @@ fn prompt_for_url() -> Option<String> {
     }
 }
 
+fn get_pwd_index(pwd: &str) -> i32 {
+    //iterate throughg the current pwd and for each / increment then -1
+    let mut level : i32 = 0;
+    for c in pwd.chars() {
+        if  c == '/' {
+            level += 1;
+        }
+    }
+
+    level -1
+}
+
 // Function to validate the URL (for now, it checks if the path exists)
-fn validate_url(url: &str) -> bool {
+fn validate_url(url: &mut String) -> bool {
+    // Ensure there is a '/' at the end of the input
+    if !url.ends_with('/') {
+        // Append '/' to the string
+        url.push('/');
+    }
     let path = Path::new(url);
     path.exists() // Return true if the path exists
 }
@@ -83,14 +101,21 @@ fn validate_url(url: &str) -> bool {
 fn process_init_screen_input(
     input: String,
     _path_map: &mut PathMap,
-    url: &mut String,
+    pwd: &mut String,
     view: &mut TerminalView,
 ){
 
     println!("Handling input for the init screen....");
+    println!("Input in the processing: {}", input);
     match input.to_lowercase().as_str() {
         "1" => view.current_view = TerminalViews::Choose,
-        "2" => view.current_view = TerminalViews::Pwd,
+        "2" => {
+            //update the view
+            view.current_view = TerminalViews::Pwd
+            //set the pwd as the root 
+
+        },
+
         &_ => println!("Invalid input!!"),
     }
 
@@ -98,19 +123,38 @@ fn process_init_screen_input(
 
 fn process_change_screen_input(
     input: String,
-    _path_map: &mut PathMap,
-    url: &mut String,
+    path_map: &mut PathMap,
+    pwd: &mut String,
     view: &mut TerminalView,
 ){
 
-    println!("Handling input for the chnage screen....");
+    println!("Handling input for the change wd screen");
+    println!("{} --> {}", pwd, input);
+    let mut inp_copy: String = input.clone();
+    if validate_url(&mut inp_copy) {
+        // Update the pwd
+        println!("Updating the pwd");
+        *pwd = inp_copy.clone(); // Clone input if needed elsewhere
+        // Call to update the directory structure
+        let pwd_index = 0; // Assuming pwd_index is managed elsewhere or passed in
+        
+        if move_dir::validate_and_update_directory(&inp_copy, path_map, pwd_index) {
+            // Change current view to Pwd screen
+            view.current_view = TerminalViews::Pwd;
+        } else {
+            println!("Failed to update directory structure.");
+        }
+            
+    } else {
+        println!("Invalid URL");
+    }
 
 }
 
 fn process_pwd_screen_input(
     input: String,
     _path_map: &mut PathMap,
-    url: &mut String,
+    pwd: &mut String,
     view: &mut TerminalView,
 ){
 
