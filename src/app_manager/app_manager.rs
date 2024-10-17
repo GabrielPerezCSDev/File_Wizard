@@ -1,9 +1,12 @@
 use crate::view_controller::view_controller::ViewController;
 use crate::view_controller::terminal_view_controller::TerminalViewController;
-
+use crate:: view::view::View;
+use crate:: view::terminal_view::TerminalView;
 use crate::app_manager::input_processor::InputProcessor;
 use crate::app_manager::terminal_input_processor::TerminalInputProcessor;
 use crate::directory::path_map::PathMap;
+use std::rc::Rc;
+use std::cell::RefCell;
 
 // Enum to represent different types of GUIs (Terminal, GUI-based, etc.)
 pub enum GuiType {
@@ -16,18 +19,26 @@ pub struct AppManager {
     gui_type: GuiType,
     input_processor: Box<dyn InputProcessor>,   // Dynamic input processor
     view_controller: Box<dyn ViewController>,   // Dynamic view controller
+    view: Rc<RefCell<Box<dyn View>>>,
 }
 
 impl AppManager {
-    pub fn new() -> Self {
-        let input_processor: Box<dyn InputProcessor> = Box::new(TerminalInputProcessor);
-        let view_controller: Box<dyn ViewController> = Box::new(TerminalViewController);
+    pub fn new(state: i32) -> Self {
+        // Initialize AppManager with placeholder values
+        let input_processor: Box<dyn InputProcessor> = Box::new(TerminalInputProcessor);  // Temporary initialization
+        let view: Rc<RefCell<Box<dyn View>>> = Rc::new(RefCell::new(Box::new(TerminalView::new())));                                // Temporary initialization
+        let view_controller: Box<dyn ViewController> = Box::new(TerminalViewController::new(view.clone())); //Temporary init
 
-        AppManager {
-            gui_type: GuiType::Terminal,   // Default to terminal for now
+        let mut app_manager = AppManager {
+            gui_type: GuiType::Terminal,  // Default to Terminal for now
             input_processor,
             view_controller,
-        }
+            view,
+        };
+
+        // Set the actual view type based on the state
+        app_manager.set_view_type(state);
+        app_manager
     }
 
     // Dynamically set the view type (terminal or other GUIs)
@@ -37,13 +48,11 @@ impl AppManager {
                 // Set the GUI type to Terminal and use TerminalInputProcessor and TerminalViewController
                 self.gui_type = GuiType::Terminal;
                 self.input_processor = Box::new(TerminalInputProcessor);
-                self.view_controller = Box::new(TerminalViewController);
+                self.view = Rc::new(RefCell::new((Box::new(TerminalView::new()))));
+                self.view_controller = Box::new(TerminalViewController::new(self.view.clone()));
             }
             _ => {
-                // Default to Terminal for now
-                self.gui_type = GuiType::Terminal;
-                self.input_processor = Box::new(TerminalInputProcessor);
-                self.view_controller = Box::new(TerminalViewController);
+                println!("Unknown GUI type.");
             }
         }
     }
@@ -60,7 +69,7 @@ impl AppManager {
 
     // Process input dynamically based on the view type and return whether to continue or not
     pub fn process_input(&self, input: String, path_map: &mut PathMap, url: &mut String) -> bool {
-        self.input_processor.process_input(input, path_map, url)
+        self.input_processor.process_input(input, path_map, url, &self.view)
     }
 
     // Display output or view through the current view controller

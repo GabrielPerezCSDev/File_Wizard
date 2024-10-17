@@ -38,14 +38,20 @@ fn main() {
         logger.log_warning(format!("Unknown mode: {}", state));
     }
 
-    let mut path_map = PathMap::new();
-    let mut url = initialization::initialize_fd::init(&mut path_map);
-    let mut app_manager = AppManager::new();
+    let mut app_manager = AppManager::new(state);
     app_manager.set_view_type(state);  // Set the view controller, input processor, and GUI
+    let mut path_map = PathMap::new();
+    let view_controller = app_manager.get_view_controller();
+    //set view as initial
+
+    let mut url = view_controller.get_input();
+    initialization::initialize_fd::init(&mut path_map, &mut url);
+     
+
 
     loop {
         // Get the view controller 
-        let view_controller = app_manager.get_view_controller();
+        //let view_controller = app_manager.get_view_controller();
 
         // Use the view controller to grab the input
         let input = view_controller.get_input();

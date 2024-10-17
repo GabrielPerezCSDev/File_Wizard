@@ -1,8 +1,5 @@
 use std::path::Path;
-use std::collections::HashMap;
 use std::fs::{self, Metadata};
-use std::time::{UNIX_EPOCH};
-use std::ffi::OsStr;
 use crate::directory::path_map::PathMap;
 use once_cell::sync::Lazy;
 use std::sync::Mutex;

@@ -1,34 +1,42 @@
 use crate::directory::path_map::PathMap;
 use crate::view_controller::view_controller::ViewController;
 use crate::view_controller::terminal_view_controller::TerminalViewController;
+use crate::view::terminal_view::TerminalView;
+use crate::view::view::View;
 use crate::app_manager::input_processor::InputProcessor;
 use std::io::{self, Write};
 use std::path::Path;
-
+use std::rc::Rc;
+use std::cell::RefCell;
 pub struct TerminalInputProcessor;
 
 impl InputProcessor for TerminalInputProcessor {
-    fn process_input(&self, input: String, _path_map: &mut PathMap, url: &mut String) -> bool {
+
+    fn process_input(
+        &self,
+        input: String,
+        _path_map: &mut PathMap,
+        url: &mut String,
+        view: &Rc<RefCell<Box<dyn View>>>,
+    ) -> bool {
         // Handle the "quit" command to exit the loop
         if input.to_lowercase() == "quit" {
-            return false; // Stop the loop in the main function
-        } else if input.to_lowercase() == "1" {
-            // Call the manual URL change function
-            if let Some(new_url) = prompt_for_url() {
-                if validate_url(&new_url) {
-                    *url = new_url; // Update the mutable reference with the new valid URL
-                    println!("URL updated successfully!");
-                } else {
-                    println!("Invalid URL. No changes made.");
-                }
-            }
-            return true; // Continue the loop
+            return false; // Stop the loop in the
+        } 
+        // Borrow the view mutably
+        let mut view_borrow = view.borrow_mut();
+        //cehck for the current type of the view to process
+        let view_ref = view_borrow.as_mut();
+
+        if let Some(terminal_view) = view_ref.as_any().downcast_ref::<TerminalView>() {
+            println!("Processing input for TerminalView");
+            //terminal_view.print_view();
+        } else {
+            panic!("Invalid view type passed to TerminalInputProcessor");
         }
-        
-        true // Continue the loop for other inputs
+        true // Continue the loop
     }
 }
-
 // Function to prompt the user for a new URL
 fn prompt_for_url() -> Option<String> {
     print!("Enter a new URL/path: ");
@@ -49,3 +57,4 @@ fn validate_url(url: &str) -> bool {
     let path = Path::new(url);
     path.exists() // Return true if the path exists
 }
+
