@@ -8,6 +8,7 @@ pub trait InputProcessor {
     input: String,
     path_map: &mut PathMap,
     pwd: &mut String,
-    view: &Rc<RefCell<Box<dyn View>>>
+    view: &Rc<RefCell<Box<dyn View>>>,
+    is_threading: &mut bool,
     ) -> bool;   
 }

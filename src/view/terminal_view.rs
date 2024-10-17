@@ -6,6 +6,7 @@ use crate::initialization::config::CONFIG;
 use crate::view::view::View;
 use std::any::Any;
 use std::borrow::Borrow;
+use crate::AppManager;
 pub enum TerminalViews {
     Init,
     Choose,
@@ -35,10 +36,10 @@ impl View for TerminalView {
         }
     }
 
-    fn print_view(&self, path_map: &PathMap, url: &str) {
+    fn print_view(&self, path_map: &PathMap, url: &str, app_manager: &AppManager) {
         match self.current_view {
             TerminalViews::Init => self.print_initial_screen(),
-            TerminalViews::Pwd => self.print_directory_screen(path_map, url),
+            TerminalViews::Pwd => self.print_directory_screen(path_map, url, app_manager),
             TerminalViews::Choose => self.print_choose_screen(),
             _ => panic!("Error: No such view type!"),
         }
@@ -136,14 +137,22 @@ impl TerminalView {
     pub fn print_initial_screen(&self) {
         println!("\nApp: {}, Version: {}, OS: {}", CONFIG.app_name, CONFIG.version, CONFIG.os);
         println!("WELCOME TO FILE WIZARD!\n");
-        println!("1.) Start at root directory (C:/)");
-        println!("2.) Enter starting directory");
-        print!("Choose an option: ");
+        println!("Enter a starting directroy or leave blank to start at root (C:/)");
+        print!("URL: ");
     }
 
-    pub fn print_directory_screen(&self, path_map: &PathMap, url: &str){
+    pub fn print_directory_screen(&self, path_map: &PathMap, url: &str, app_manager: &AppManager){
         println!("Current Directroy {}: ", url);
-        self.print_direc(path_map, url, 0, 1 );
+        let percent : f64= (app_manager.searched_space / app_manager.used_space) * 100.0;
+        let formated_percent = format!("{:.4}", percent);
+        println!("{}GB/{}GB => {}%", app_manager.searched_space, app_manager.used_space, formated_percent);
+        //self.print_direc(path_map, url, 0, 1 );
+        println!("________________________________________________");
+        println!("1.) Enter to explore directory");
+        println!("2.) Forward");
+        println!("3.) Back");
+        println!("4.) Thread On/Off");
+        print!("Enter: ")
     }
 
     pub fn print_choose_screen(&self){

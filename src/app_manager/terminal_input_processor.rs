@@ -21,6 +21,7 @@ impl InputProcessor for TerminalInputProcessor {
         _path_map: &mut PathMap,
         pwd: &mut String,
         view: &Rc<RefCell<Box<dyn View>>>,
+        is_threading: &mut bool,
     ) -> bool {
         // Handle the "quit" command to exit the loop
         if input.to_lowercase() == "quit" {
@@ -38,19 +39,22 @@ impl InputProcessor for TerminalInputProcessor {
                     input,
                     _path_map,
                     pwd,
-                    terminal_view
+                    terminal_view,
+                    is_threading,
                 ),
                 TerminalViews::Choose => process_change_screen_input(
                     input,
                     _path_map,
                     pwd,
-                    terminal_view
+                    terminal_view,
+                    is_threading,
                 ),
                 TerminalViews::Pwd => process_pwd_screen_input(
                     input,
                     _path_map,
                     pwd,
-                    terminal_view
+                    terminal_view,
+                    is_threading,
                 ),
                 _ => panic!("Unexpected view state"),
             }
@@ -103,20 +107,35 @@ fn process_init_screen_input(
     _path_map: &mut PathMap,
     pwd: &mut String,
     view: &mut TerminalView,
+    is_threading: &mut bool,
 ){
 
-    println!("Handling input for the init screen....");
-    println!("Input in the processing: {}", input);
+    //println!("Handling input for the init screen....");
+    //println!("Input in the processing: {}", input);
     match input.to_lowercase().as_str() {
-        "1" => view.current_view = TerminalViews::Choose,
-        "2" => {
-            //update the view
-            view.current_view = TerminalViews::Pwd
-            //set the pwd as the root 
-
+        "" => {
+            //println!("Handling input for default input");
+            let mut inp_copy: String = input.clone();
+            inp_copy.push('C');
+            inp_copy.push(':');
+            inp_copy.push('/');
+            *pwd = inp_copy.clone(); // Assign the modified `inp_copy` to `pwd`
+            view.current_view = TerminalViews::Pwd;
+            *is_threading = true;
         },
-
-        &_ => println!("Invalid input!!"),
+        &_ => {
+            //println!("Handling input for custom input");
+            let mut inp_copy: String = input.clone();
+            view.current_view = TerminalViews::Pwd;
+            if !validate_url(&mut inp_copy) {
+                println!("invalid URL");
+            }else {
+                //println!("Success!");
+                *pwd = inp_copy.clone();
+                view.current_view = TerminalViews::Pwd;
+                *is_threading = true;
+            }
+        },
     }
 
 }
@@ -126,14 +145,15 @@ fn process_change_screen_input(
     path_map: &mut PathMap,
     pwd: &mut String,
     view: &mut TerminalView,
+    is_threading: &mut bool,
 ){
 
-    println!("Handling input for the change wd screen");
-    println!("{} --> {}", pwd, input);
+    //println!("Handling input for the change wd screen");
+    //println!("{} --> {}", pwd, input);
     let mut inp_copy: String = input.clone();
     if validate_url(&mut inp_copy) {
         // Update the pwd
-        println!("Updating the pwd");
+        //println!("Updating the pwd");
         *pwd = inp_copy.clone(); // Clone input if needed elsewhere
         // Call to update the directory structure
         let pwd_index = 0; // Assuming pwd_index is managed elsewhere or passed in
@@ -156,9 +176,19 @@ fn process_pwd_screen_input(
     _path_map: &mut PathMap,
     pwd: &mut String,
     view: &mut TerminalView,
+    is_threading: &mut bool,
 ){
 
     println!("Handling input for the pwd screen....");
+    match input.to_lowercase().as_str() {
+        "1" => {println!("Unimplemented method");},
+        "2" => {println!("Unimplemented method");},
+        "3" => {println!("Unimplemented method");},
+        "4" => {
+                *is_threading = !*is_threading;
+        },
+        &_ => {print!("Invalid input...");}
 
+}
 }
 

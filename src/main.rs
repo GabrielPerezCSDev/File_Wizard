@@ -12,7 +12,7 @@ use std::sync::{Mutex, Arc, RwLock, atomic::{AtomicBool, Ordering}};
 use std::env;  // Import env module to access command-line arguments
 use logger::logger::LOGGER; //import the logger
 use std::time::Duration;
-
+use sysinfo::{DiskExt, System, SystemExt};
 static DEPTH: Lazy<Mutex<i32>> = Lazy::new(|| Mutex::new(0));
 use std::thread;
 
@@ -32,6 +32,21 @@ fn main() {
 
     // Log the application mode
     let mut logger = LOGGER.lock().unwrap(); // Lock the global logger
+    // Create a new System instance
+    let mut sys = System::new_all();
+    
+    // Iterate over all disks and find C:
+    let mut used_space_gb : f64 = 0.0;
+    for disk in sys.disks() {
+        if let Some(name) = disk.name().to_str() {
+            
+                let total_space_gb = disk.total_space() as f64 / 1_073_741_824.0; // Convert bytes to GB
+                let available_space_gb = disk.available_space() as f64 / 1_073_741_824.0; // Convert bytes to GB
+                used_space_gb = total_space_gb - available_space_gb;
+                println!("Used Space: {:.2} GB, Available Space: {:.2} GB", used_space_gb, available_space_gb);
+            
+        }
+    }
 
     if state == 0 {
         logger.log_info("Running in terminal mode".to_string());
@@ -49,6 +64,12 @@ let path_map_clone = Arc::clone(&path_map);
 let running = Arc::new(AtomicBool::new(false));
 let running_clone = Arc::clone(&running);
 
+
+
+// Main application (only this thread will mutate the PathMap)
+let mut app_manager = AppManager::new(state);
+app_manager.set_view_type(state);
+app_manager.used_space = used_space_gb;
 // Spawn a background thread
 thread::spawn(move || {
     loop {
@@ -57,19 +78,21 @@ thread::spawn(move || {
             let path_map = path_map_clone.read().unwrap();
             // Read from the PathMap as needed
             // For example:
-            // println!("Background thread reads PathMap state.");
+            println!("Thread is on!");
         }
         // Sleep to prevent tight loop
         thread::sleep(std::time::Duration::from_millis(100));
     }
 });
-
-// Main application (only this thread will mutate the PathMap)
-let mut app_manager = AppManager::new(state);
-app_manager.set_view_type(state);
-
      
     loop {
+        println!("----------------------------------------------------------------------------------------------");
+        println!("Is thread running? {}", app_manager.get_is_threading());
+        if *app_manager.get_is_threading() {
+            running.store(true, Ordering::SeqCst);
+        }else{
+            running.store(false, Ordering::SeqCst);
+        }
         // Acquire a write lock to mutate PathMap
     {
         let mut path_map = path_map.write().unwrap();
@@ -79,7 +102,6 @@ app_manager.set_view_type(state);
 
         // Use the view controller to grab the input
         let input = app_manager.get_input();
-        println!("Input going in {}", input);
         // Process the input
         {
             let mut path_map_write = path_map.write().unwrap();
@@ -90,6 +112,7 @@ app_manager.set_view_type(state);
         } // Write lock is released here
 
         //view_controller.display_output(&format!("You entered: {}", input));
+        println!("----------------------------------------------------------------------------------------------");
     }
 
     println!("Terminating program...");
