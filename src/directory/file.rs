@@ -4,9 +4,6 @@ use std::collections::HashMap;
 use crate::directory::path_map::PathMap;
 use crate::directory::folder::Folder; // Import Folder since File references Folder
 use std::sync::{Arc, Mutex};
-use std::rc::Rc;
-use std::cell::RefCell;
-
 // Import the function that handles file-specific metadata
 use crate::directory::metadata::file_specific_metadata;
 

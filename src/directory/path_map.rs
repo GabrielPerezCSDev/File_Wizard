@@ -1,7 +1,5 @@
 // Import required modules
 use std::collections::HashMap;
-use std::rc::Rc;
-use std::cell::RefCell;
 use crate::directory::path_type::PathType; // Moved PathType to a separate module
 use crate::directory::file::File; // Import File from the file module
 use crate::directory::folder::Folder; // Import Folder from the folder module

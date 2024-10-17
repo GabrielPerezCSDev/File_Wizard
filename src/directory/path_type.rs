@@ -1,6 +1,4 @@
 // Import necessary types
-use std::rc::Rc;
-use std::cell::RefCell;
 use std::sync::{Arc, Mutex};
 use crate::directory::file::File; // Import File from the file module
 use crate::directory::folder::Folder; // Import Folder from the folder module

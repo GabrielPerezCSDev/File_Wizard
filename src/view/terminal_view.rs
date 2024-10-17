@@ -1,11 +1,8 @@
 use crate::directory::path_map::PathMap;
 use crate::directory::path_type::PathType;
-use crate::directory::folder::Folder;
-use crate::directory::file::File;
 use crate::initialization::config::CONFIG;
 use crate::view::view::View;
 use std::any::Any;
-use std::borrow::Borrow;
 use crate::AppManager;
 pub enum TerminalViews {
     Init,
@@ -36,12 +33,11 @@ impl View for TerminalView {
         }
     }
 
-    fn print_view(&self, path_map: &PathMap, url: &str, app_manager: &AppManager) {
+    fn print_view(&self, url: &str, app_manager: &AppManager) {
         match self.current_view {
             TerminalViews::Init => self.print_initial_screen(),
-            TerminalViews::Pwd => self.print_directory_screen(path_map, url, app_manager),
+            TerminalViews::Pwd => self.print_directory_screen(url, app_manager),
             TerminalViews::Choose => self.print_choose_screen(),
-            _ => panic!("Error: No such view type!"),
         }
     }
 }
@@ -81,7 +77,7 @@ impl TerminalView {
                     match child {
                         PathType::File(file) => {
                             //dont print if if depth = max_depth
-                            if(depth < max_depth){
+                            if depth < max_depth {
                             // Print the file with the correct indentation
                             self.print_offset(depth + 1);
                             println!("File: {}", file.url);
@@ -141,7 +137,7 @@ impl TerminalView {
         print!("URL: ");
     }
 
-    pub fn print_directory_screen(&self, path_map: &PathMap, url: &str, app_manager: &AppManager){
+    pub fn print_directory_screen(&self, url: &str, app_manager: &AppManager){
         println!("Current Directroy {}: ", url);
         let percent : f64= (app_manager.searched_space / app_manager.used_space) * 100.0;
         let formated_percent = format!("{:.4}", percent);

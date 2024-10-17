@@ -11,9 +11,7 @@ use once_cell::sync::Lazy;
 use std::sync::{Mutex, Arc, RwLock, atomic::{AtomicBool, Ordering}};
 use std::env;  // Import env module to access command-line arguments
 use logger::logger::LOGGER; //import the logger
-use std::time::Duration;
 use sysinfo::{DiskExt, System, SystemExt};
-static DEPTH: Lazy<Mutex<i32>> = Lazy::new(|| Mutex::new(0));
 use std::thread;
 
 
@@ -26,26 +24,26 @@ fn main() {
     } else {
         0
     };
-    let counter = Arc::new(Mutex::new(0));
+    
      // Clone the Arc to move into the background thread
-     let counter_clone = Arc::clone(&counter);
+     //let counter_clone = Arc::clone(&counter);
 
     // Log the application mode
     let mut logger = LOGGER.lock().unwrap(); // Lock the global logger
     // Create a new System instance
-    let mut sys = System::new_all();
+    let sys = System::new_all();
     
     // Iterate over all disks and find C:
     let mut used_space_gb : f64 = 0.0;
     for disk in sys.disks() {
-        if let Some(name) = disk.name().to_str() {
+        //if let Some(name) = disk.name().to_str() {
             
                 let total_space_gb = disk.total_space() as f64 / 1_073_741_824.0; // Convert bytes to GB
                 let available_space_gb = disk.available_space() as f64 / 1_073_741_824.0; // Convert bytes to GB
                 used_space_gb = total_space_gb - available_space_gb;
                 println!("Used Space: {:.2} GB, Available Space: {:.2} GB", used_space_gb, available_space_gb);
             
-        }
+        //}
     }
 
     if state == 0 {
@@ -75,7 +73,7 @@ thread::spawn(move || {
     loop {
         if running_clone.load(Ordering::SeqCst) {
             // Acquire a read lock to access PathMap
-            let path_map = path_map_clone.read().unwrap();
+            let _path_map = path_map_clone.read().unwrap();
             // Read from the PathMap as needed
             // For example:
             println!("Thread is on!");
@@ -95,9 +93,9 @@ thread::spawn(move || {
         }
         // Acquire a write lock to mutate PathMap
     {
-        let mut path_map = path_map.write().unwrap();
+        let _path_map = path_map.write().unwrap();
         // Mutate the PathMap as needed
-        app_manager.display_view(&mut path_map);
+        app_manager.display_view();
     }
 
         // Use the view controller to grab the input

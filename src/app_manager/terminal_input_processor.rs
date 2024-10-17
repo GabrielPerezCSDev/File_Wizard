@@ -1,7 +1,5 @@
 use crate::directory::path_map::PathMap;
 use crate::directory::move_dir;
-use crate::view_controller::view_controller::ViewController;
-use crate::view_controller::terminal_view_controller::TerminalViewController;
 use crate::view::terminal_view::TerminalView;
 use crate::view::terminal_view::TerminalViews;
 use crate::view::view::View;
@@ -51,12 +49,10 @@ impl InputProcessor for TerminalInputProcessor {
                 ),
                 TerminalViews::Pwd => process_pwd_screen_input(
                     input,
-                    _path_map,
                     pwd,
-                    terminal_view,
                     is_threading,
                 ),
-                _ => panic!("Unexpected view state"),
+                
             }
         } else {
             panic!("Invalid view type passed to TerminalInputProcessor");
@@ -145,7 +141,7 @@ fn process_change_screen_input(
     path_map: &mut PathMap,
     pwd: &mut String,
     view: &mut TerminalView,
-    is_threading: &mut bool,
+    _is_threading: &mut bool,
 ){
 
     //println!("Handling input for the change wd screen");
@@ -173,9 +169,7 @@ fn process_change_screen_input(
 
 fn process_pwd_screen_input(
     input: String,
-    _path_map: &mut PathMap,
     pwd: &mut String,
-    view: &mut TerminalView,
     is_threading: &mut bool,
 ){
 

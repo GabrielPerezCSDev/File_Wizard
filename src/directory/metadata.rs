@@ -2,10 +2,8 @@
 use std::collections::HashMap;
 use std::path::Path;
 use std::fs::{self, Metadata};
-use std::time::UNIX_EPOCH;
 use std::ffi::OsStr;
 use chrono::{DateTime, Local};
-use std::time::SystemTime;
 
 // Extract common metadata for both files and folders
 pub fn file_folder_metadata(metadata: &mut HashMap<String, String>, path: &Path) {
@@ -68,7 +66,7 @@ fn insert_file_extension(metadata: &mut HashMap<String, String>, path: &Path) {
 }
 
 // Folder-specific metadata
-pub fn folder_specific_metadata(metadata: &mut HashMap<String, String>, path: &Path) {;
+pub fn folder_specific_metadata(metadata: &mut HashMap<String, String>, path: &Path) {
     file_folder_metadata(metadata, path);
 
     if let Ok(meta) = fs::metadata(path) {

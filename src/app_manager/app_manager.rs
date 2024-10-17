@@ -32,8 +32,8 @@ impl AppManager {
         let input_processor: Box<dyn InputProcessor> = Box::new(TerminalInputProcessor);  // Temporary initialization
         let view: Rc<RefCell<Box<dyn View>>> = Rc::new(RefCell::new(Box::new(TerminalView::new())));                                // Temporary initialization
         let view_controller: Box<dyn ViewController> = Box::new(TerminalViewController::new(view.clone())); //Temporary init
-        let mut is_threading : bool = false; 
-        let mut searched_space : f64 = 0.0;
+        let is_threading : bool = false; 
+        let searched_space : f64 = 0.0;
         let mut app_manager = AppManager {
             gui_type: GuiType::Terminal,  // Default to Terminal for now
             input_processor,
@@ -57,7 +57,7 @@ impl AppManager {
                 // Set the GUI type to Terminal and use TerminalInputProcessor and TerminalViewController
                 self.gui_type = GuiType::Terminal;
                 self.input_processor = Box::new(TerminalInputProcessor);
-                self.view = Rc::new(RefCell::new((Box::new(TerminalView::new()))));
+                self.view = Rc::new(RefCell::new(Box::new(TerminalView::new())));
                 self.view_controller = Box::new(TerminalViewController::new(self.view.clone()));
             }
             _ => {
@@ -82,8 +82,8 @@ impl AppManager {
     }
 
     // Display output or view through the current view controller
-    pub fn display_view(&self, path_map: &PathMap) {
-        self.view_controller.show_view(path_map, &self.pwd, self);
+    pub fn display_view(&self) {
+        self.view_controller.show_view(&self.pwd, self);
     }
 
     pub fn get_pwd(&self) -> &str {

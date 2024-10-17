@@ -1,7 +1,4 @@
 use crate::view_controller::view_controller::ViewController;
-use crate::view;
-use crate::directory::path_map::PathMap;
-use crate::view::terminal_view::TerminalView;
 use crate::AppManager;
 use crate::view::view::View;
 use std::io::{self, Write};
@@ -31,9 +28,9 @@ impl ViewController for TerminalViewController {
         println!("{}", output);
     }
 
-    fn show_view(&self, path_map: &PathMap, url: &str, app_manager: &AppManager) {
+    fn show_view(&self, url: &str, app_manager: &AppManager) {
         let view_borrow = self.view.borrow(); // Immutable borrow
-        view_borrow.print_view(path_map, url, app_manager);             // Call the print_view method
+        view_borrow.print_view(url, app_manager);             // Call the print_view method
     }
 
     fn init_view(&self){

@@ -2,19 +2,11 @@ use std::path::Path;
 use std::fs::{self, Metadata};
 use crate::directory::path_map::PathMap;
 use once_cell::sync::Lazy;
-use std::time::Instant;
-use std::rc::Rc;
-use std::cell::RefCell;
 use crate::directory::path_type::PathType;
 use crate::directory::folder::Folder; // Use Folder from folder.rs
 use crate::directory::file::File; // Use File from file.rs
-use crate::directory::metadata::{file_specific_metadata, folder_specific_metadata}; // Metadata imports
-use crate::logger::logger::LOGGER;
+//use crate::logger::logger::LOGGER;
 use std::sync::{Arc, Mutex};
-// Static mutable counter to track recursive calls
-static RECURSION_COUNT: Lazy<Mutex<i32>> = Lazy::new(|| Mutex::new(0));
-// Static mutable counter 
-static PATH_COUNT: Lazy<Mutex<i32>> = Lazy::new(|| Mutex::new(0));
 
 /// Discovers children of the folder recursively (maybe do for depth 5)
 pub fn discover_children(folder: &Arc<Mutex<Folder>>, path_map: &mut PathMap, pwd_index: i32) {
@@ -34,7 +26,6 @@ pub fn discover_children(folder: &Arc<Mutex<Folder>>, path_map: &mut PathMap, pw
                 let entry_path = entry.path();
                 let entry_str = entry_path.to_str().unwrap_or("").to_string();
 
-                let path_check_start = Instant::now();
 
                 if path_map.contains_key(&entry_str) {
                     continue;

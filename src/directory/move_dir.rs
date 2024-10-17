@@ -4,10 +4,8 @@ use crate::directory::folder::Folder; // Import from folder module
 use crate::directory::file::File; // Import from file module
 use crate::directory::path_type::PathType; // Import PathType for determining file/folder types
 use crate::directory::path;
-use crate::logger::logger::LOGGER;
+//use crate::logger::logger::LOGGER;
 use std::path::Path;
-use std::rc::Rc;
-use std::cell::RefCell;
 use std::sync::Arc;
 use std::sync::Mutex;
 
