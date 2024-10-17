@@ -20,7 +20,6 @@ impl TerminalViewController {
 impl ViewController for TerminalViewController {
 
     fn get_input(&self) -> String {
-        print!("Enter command: ");
         io::stdout().flush().unwrap();
         let mut input = String::new();
         io::stdin().read_line(&mut input).unwrap();
@@ -32,7 +31,8 @@ impl ViewController for TerminalViewController {
     }
 
     fn show_view(&self, path_map: &PathMap, url: &str) {
-        println!("TODO Show_View");
+        let view_borrow = self.view.borrow(); // Immutable borrow
+        view_borrow.print_view(path_map, url);             // Call the print_view method
     }
 
     fn init_view(&self){

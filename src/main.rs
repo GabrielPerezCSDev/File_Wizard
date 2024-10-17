@@ -28,13 +28,10 @@ fn main() {
     let mut logger = LOGGER.lock().unwrap(); // Lock the global logger
 
     if state == 0 {
-        println!("Running in terminal mode");
         logger.log_info("Running in terminal mode".to_string());
     } else if state == 1 {
-        println!("Running in GUI mode");
         logger.log_info("Running in GUI mode".to_string());
     } else {
-        println!("Unknown mode: {}", state);
         logger.log_warning(format!("Unknown mode: {}", state));
     }
 
@@ -42,17 +39,16 @@ fn main() {
     app_manager.set_view_type(state);  // Set the view controller, input processor, and GUI
     let mut path_map = PathMap::new();
     let view_controller = app_manager.get_view_controller();
-    //set view as initial
-
-    let mut url = view_controller.get_input();
-    initialization::initialize_fd::init(&mut path_map, &mut url);
+    let mut url : String = "".to_string();
+    //view_controller.show_view(&mut path_map, &mut url);
+    //let input : String = view_controller.get_input();
+    //process_input(&self, input: String, path_map: &mut PathMap, url: &mut String)
+    //app_manager.process_input(input, &mut path_map, &mut url);
+    //initialization::initialize_fd::init(&mut path_map, &mut url);
      
-
-
     loop {
-        // Get the view controller 
-        //let view_controller = app_manager.get_view_controller();
-
+        //show the current view
+        view_controller.show_view(&mut path_map, &mut url);
         // Use the view controller to grab the input
         let input = view_controller.get_input();
 
@@ -64,8 +60,7 @@ fn main() {
             break;
         }
 
-        view_controller.display_output(&format!("You entered: {}", input));
-        view_controller.show_view(&path_map, &url);
+        //view_controller.display_output(&format!("You entered: {}", input));
     }
 
     println!("Terminating program...");

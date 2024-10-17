@@ -2,11 +2,13 @@ use crate::directory::path_map::PathMap;
 use crate::directory::path_type::PathType;
 use crate::directory::folder::Folder;
 use crate::directory::file::File;
+use crate::initialization::config::CONFIG;
 use crate::view::view::View;
 use std::any::Any;
 
 pub enum TerminalViews {
     Init,
+    Choose,
     Pwd,
 }
 
@@ -21,6 +23,10 @@ impl View for TerminalView {
         self
     }
 
+    fn as_any_mut(&mut self) -> &mut dyn Any {
+        self
+    }
+
     fn change_view(&mut self, new_view: Box<dyn std::any::Any>) {
         if let Ok(new_view) = new_view.downcast::<TerminalViews>() {
             self.current_view = *new_view;
@@ -29,10 +35,11 @@ impl View for TerminalView {
         }
     }
 
-    fn print_view(&self) {
+    fn print_view(&self, path_map: &PathMap, url: &str) {
         match self.current_view {
             TerminalViews::Init => self.print_initial_screen(),
-            TerminalViews::Pwd => self.print_directory_screen(),
+            TerminalViews::Pwd => self.print_directory_screen(path_map, url),
+            TerminalViews::Choose => self.print_choose_screen(),
             _ => panic!("Error: No such view type!"),
         }
     }
@@ -47,7 +54,7 @@ impl TerminalView {
         }
     }
 
-    pub fn print_direc(&self, path_map: &PathMap, url: String, depth: usize) {
+    pub fn print_direc(&self, path_map: &PathMap, url: &str, depth: usize) {
         // Print the directory and its children recursively (DFS)
         if let Some(path_type) = path_map.get_path(&url) {
             match path_type {
@@ -71,7 +78,7 @@ impl TerminalView {
                             PathType::Folder(subfolder_rc) => {
                                 // Recursively call print_direc on the subfolder with increased depth
                                 let subfolder = subfolder_rc.borrow();
-                                self.print_direc(path_map, subfolder.url.clone(), depth + 1);
+                                self.print_direc(path_map, &subfolder.url, depth + 1);
                             }
                             PathType::None => {
                                 self.print_offset(depth + 1);
@@ -111,12 +118,19 @@ impl TerminalView {
 
     // Define initial view for the terminal
     pub fn print_initial_screen(&self) {
-        println!("WELCOME TO FILE WIZARD!\n\n");
+        println!("\nApp: {}, Version: {}, OS: {}", CONFIG.app_name, CONFIG.version, CONFIG.os);
+        println!("WELCOME TO FILE WIZARD!\n");
         println!("1.) Start at root directory (C:/)");
         println!("2.) Enter starting directory");
+        print!("Choose an option: ");
     }
 
-    pub fn print_directory_screen(&self){
-        println!("something or another");
+    pub fn print_directory_screen(&self, path_map: &PathMap, url: &str){
+        println!("Current Directroy: ");
+        self.print_direc(path_map, url, 1)
+    }
+
+    pub fn print_choose_screen(&self){
+        print!("Choose a directory: ");
     }
 }
