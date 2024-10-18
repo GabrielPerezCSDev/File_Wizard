@@ -33,12 +33,16 @@ impl Default for Folder {
 
 impl Folder {
     // Constructor to create a new Folder
-    pub fn new(path: &Path, parent: Option<Arc<Mutex<Folder>>>, path_map: &mut PathMap, pwd_index: i32) -> Arc<Mutex<Self>> {
-        let name = path.file_name()
-            .and_then(|os_str| os_str.to_str())
-            .unwrap_or("")
-            .to_string();
-
+    pub fn new(path: &Path, parent: Option<Arc<Mutex<Folder>>>, pwd_index: i32) -> Arc<Mutex<Self>> {
+        let name = if path.parent().is_none() {
+            // If there is no parent, it is the root directory.
+            path.to_str().unwrap_or("").to_string()
+        } else {
+            path.file_name()
+                .and_then(|os_str| os_str.to_str())
+                .unwrap_or("")
+                .to_string()
+        };
         let url = path.to_str().unwrap_or("").to_string();
         let cloned_url = url.clone();
 
@@ -65,7 +69,7 @@ impl Folder {
         let folder_arc = Arc::new(Mutex::new(folder));
 
         // Add the folder to the path map
-        path_map.add_folder(&cloned_url, Arc::clone(&folder_arc));
+        //path_map.add_folder(&cloned_url, Arc::clone(&folder_arc));
 
         folder_arc
     }
@@ -85,6 +89,10 @@ impl Folder {
      // Getter for metadata
      pub fn get_metadata(&self) -> &HashMap<String, String> {
         &self.metadata
+    }
+
+    pub fn get_name(&self) -> &str {
+        &self.name
     }
 
 

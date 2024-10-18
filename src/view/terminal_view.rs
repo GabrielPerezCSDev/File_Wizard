@@ -4,8 +4,10 @@ use crate::initialization::config::CONFIG;
 use crate::view::view::View;
 use std::any::Any;
 use crate::AppManager;
+use std::thread::sleep;
 pub enum TerminalViews {
     Init,
+    Processing,
     Choose,
     Pwd,
 }
@@ -38,6 +40,8 @@ impl View for TerminalView {
             TerminalViews::Init => self.print_initial_screen(),
             TerminalViews::Pwd => self.print_directory_screen(url, app_manager),
             TerminalViews::Choose => self.print_choose_screen(),
+            TerminalViews::Processing => self.print_processing_screen(), // Add this to handle the Processing state
+            _ => panic!("Unknown view state encountered!"),
         }
     }
 }
@@ -52,6 +56,7 @@ impl TerminalView {
     }
     pub fn print_direc(&self, path_map: &PathMap, url: &str, depth: usize, max_depth: usize) {
     // Check if the current depth exceeds the maximum allowed depth
+    println!("HOWDY DANDY");
     if depth > max_depth {
         return;
     }
@@ -138,25 +143,47 @@ impl TerminalView {
         print!("URL: ");
     }
 
-    pub fn print_directory_screen(&self, url: &str, app_manager: &AppManager){
+    pub fn print_directory_screen(&self, url: &str, app_manager: &AppManager) {
         println!("______________________________________________________________________________________________________");
         println!("Is thread on? {}", app_manager.get_is_threading());
-        println!("Current Directroy {}: ", url);
-        let percent : f64= (app_manager.searched_space / app_manager.used_space) * 100.0;
-        let formated_percent = format!("{:.4}", percent);
-        println!("{}GB/{}GB => {}% of total directory", app_manager.searched_space, app_manager.used_space, formated_percent);
-        //self.print_direc(path_map, url, 0, 1 );
+        println!("Current Directory {}: ", url);
+
+        let percent: f64 = (app_manager.searched_space / app_manager.used_space) * 100.0;
+        let formatted_percent = format!("{:.4}", percent);
+        println!(
+            "{}GB/{}GB => {}% of total directory",
+            app_manager.searched_space, app_manager.used_space, formatted_percent
+        );
+
+        // Acquire a read lock on directory_search to get a non-mutable reference to path_map
+        if let Ok(directory_search) = app_manager.directory_search.read() {
+            println!("In the read lock");
+            let path_map = directory_search.get_path_map(); // Get a reference to the path_map
+            println!("Got the map, going to the print method");
+            self.print_direc(path_map, url, 0, 1);
+        } else {
+            println!("Failed to acquire lock on directory_search.");
+        }
+
         println!("______________________________________________________________________________________________________");
         println!("1.) Enter to explore directory");
         println!("2.) Forward");
         println!("3.) Back");
         println!("4.) Thread On/Off");
-        print!("Enter: ")
-        
+        print!("Enter: ");
     }
+    
+    
 
     pub fn print_choose_screen(&self){
         println!("______________________________________________________________________________________________________");
         print!("Choose a directory: ");
+    }
+    pub fn print_processing_screen(&self){
+        println!("______________________________________________________________________________________________________");
+        println!("Initialzing the file structure please wait ...");
+        println!("______________________________________________________________________________________________________");
+        sleep(std::time::Duration::from_millis(5000));
+        println!("Press any key to continue");
     }
 }

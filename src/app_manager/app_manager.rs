@@ -23,22 +23,26 @@ pub struct AppManager {
     input_processor: Box<dyn InputProcessor>,   // Dynamic input processor
     view_controller: Box<dyn ViewController>,   // Dynamic view controller
     view: Rc<RefCell<Box<dyn View>>>,
-    pub directory_search: Arc<Mutex<DirectorySearch>>, //mutable and thread safe
+    pub directory_search: Arc<RwLock<DirectorySearch>>, //this will be just to start a directroy search...
     search_controller: SearchController,
     pub pwd: Arc<RwLock<String>>, //rw thread safe
     is_threading: bool,
     pub used_space: f64,
     pub searched_space: f64,
+    path_map : PathMap,
+    receiver: Receiver<PathMap>,
 }
 
 impl AppManager {
-    pub fn new(state: i32) -> Self {
+    pub fn new(state: i32, receiver: Receiver<PathMap>) -> Self {
         // Initialize AppManager with placeholder values
         let input_processor: Box<dyn InputProcessor> = Box::new(TerminalInputProcessor);  // Temporary initialization
         let view: Rc<RefCell<Box<dyn View>>> = Rc::new(RefCell::new(Box::new(TerminalView::new())));                                // Temporary initialization
         let view_controller: Box<dyn ViewController> = Box::new(TerminalViewController::new(view.clone())); //Temporary init 
-        // Add initialization for DirectorySearch and SearchController
-        let directory_search = Arc::new(Mutex::new(DirectorySearch::new()));
+        // AppManager holds the read-only DirectorySearch
+        let directory_search = Arc::new(RwLock::new(DirectorySearch::new()));
+
+        // SearchController can modify DirectorySearch
         let search_controller = SearchController::new(String::new(), Arc::clone(&directory_search));
 
         let is_threading : bool = false; 
@@ -54,6 +58,7 @@ impl AppManager {
             is_threading,
             used_space : 0.0,
             searched_space,
+            receiver,
         };
 
         // Set the actual view type based on the state
@@ -94,6 +99,7 @@ impl AppManager {
     }
 
     pub fn start_search(&self, running: Arc<AtomicBool>, start_dir : &String) {
+        println!("start a search!");
         self.search_controller.start_initial_search(running, start_dir);
     }
 
@@ -108,6 +114,7 @@ impl AppManager {
             println!("Failed to acquire read lock on pwd.");
         }
     }
+
 
     pub fn get_pwd(&self) -> String {
         // Acquire a read lock to access the value
@@ -129,5 +136,45 @@ impl AppManager {
     pub fn get_is_threading(&self) -> &bool {
         &self.is_threading
     }
+
+
+
+
+
+    pub fn run(&mut self) {
+        loop {
+            // Listen for any PathMap updates
+            if let Ok(updated_map) = self.receiver.try_recv() {
+                println!("Received updated PathMap.");
+                // Update the internal state of the PathMap
+                let mut directory_search = self.directory_search.write().unwrap();
+                directory_search.update_path_map(updated_map);
+            }
+
+            // Update the threading state
+            self.update_threading_state();
+
+            // Display the current view
+            self.display_view();
+
+            // Grab user input and process it
+            let input = self.get_input();
+            let should_continue = self.process_input(input);
+            if !should_continue {
+                break;
+            }
+
+            // Sleep to prevent tight looping
+            std::thread::sleep(std::time::Duration::from_millis(100));
+        }
+    }
+
+    fn update_threading_state(&self) {
+        // Update the running state flag based on the app_manager
+        running.store(self.is_threading, Ordering::SeqCst);
+    }
+
+
+
 }
 

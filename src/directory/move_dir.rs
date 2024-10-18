@@ -8,7 +8,7 @@ use crate::directory::path;
 use std::path::Path;
 use std::sync::Arc;
 use std::sync::Mutex;
-
+/*
 //BFS-Lottery Schedule Based Algorithm to Discover The  
 //updates the path map and adjusts structure for new folders
 pub fn validate_and_update_directory(url: &str, path_map: &mut PathMap, pwd_index: i32) -> bool {
@@ -107,5 +107,5 @@ pub fn generate_new_folder(folder_path: &Path, path_map: &mut PathMap, pwd_index
 }
 
 
-
+*/
 

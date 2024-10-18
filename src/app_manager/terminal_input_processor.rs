@@ -50,6 +50,7 @@ impl InputProcessor for TerminalInputProcessor {
                     pwd,
                     is_threading,
                 ),
+                TerminalViews::Processing => process_processing_screen_input(terminal_view)
                 
             }
         } else {
@@ -117,7 +118,7 @@ fn process_init_screen_input(
             } else {
                 println!("Failed to acquire write lock on pwd.");
             }
-            view.current_view = TerminalViews::Pwd;
+            view.current_view = TerminalViews::Processing;
             *is_threading = true;
         },
         &_ => {
@@ -133,11 +134,12 @@ fn process_init_screen_input(
                 } else {
                     println!("Failed to acquire write lock on pwd.");
                 }
-                view.current_view = TerminalViews::Pwd;
+                view.current_view = TerminalViews::Processing;
                 *is_threading = true;
             }
         },
     }
+
 
 }
 
@@ -192,5 +194,15 @@ fn process_pwd_screen_input(
         &_ => {print!("Invalid input...");}
 
 }
+}
+
+fn process_processing_screen_input(
+    view: &mut TerminalView,
+){
+
+
+   view.current_view = TerminalViews::Pwd;
+        
+
 }
 

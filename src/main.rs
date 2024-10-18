@@ -86,10 +86,11 @@ thread::spawn(move || {
             // Thread should be on, but check if it's already running
             if !has_run {
                 // Acquire a lock on directory_search and start the search
-                if let Ok(directory_search) = directory_search_clone.lock() {
+                if let Ok(directory_search) = directory_search_clone.write() {
                     if let Ok(pwd_read) = pwd_clone.read() {
                         directory_search.initial_search(running_clone_2.clone(), &*pwd_read); // Pass running flag and pwd as &String
                         has_run = true; // Mark that the search has started
+                        println!("fist time run");
                     } else {
                         println!("Failed to acquire read lock on pwd.");
                     }
@@ -97,7 +98,7 @@ thread::spawn(move || {
                     println!("Failed to acquire lock on directory_search.");
                 }
             } else {
-                // If already running, just chill
+                println!("relaxed thread run.");
             }
         } else {
             // If the thread is not supposed to be running, reset the has_run flag
@@ -107,7 +108,7 @@ thread::spawn(move || {
         }
 
         // Sleep to prevent tight loop, use a reasonable sleep interval
-        thread::sleep(std::time::Duration::from_millis(500));
+        thread::sleep(std::time::Duration::from_millis(50));
     }
 });
      

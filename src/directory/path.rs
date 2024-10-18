@@ -6,7 +6,7 @@ use crate::directory::folder::Folder; // Use Folder from folder.rs
 use crate::directory::file::File; // Use File from file.rs
 //use crate::logger::logger::LOGGER;
 use std::sync::{Arc, Mutex};
-
+/*
 /// Discovers children of the folder recursively (maybe do for depth 5)
 pub fn discover_children(folder: &Arc<Mutex<Folder>>, path_map: &mut PathMap, pwd_index: i32) {
     
@@ -102,7 +102,7 @@ fn is_accessible(metadata: &Metadata) -> bool {
         !metadata.permissions().readonly() // Check if the entry is read-only on Windows
     }
 }
-
+*/
 
 
 
