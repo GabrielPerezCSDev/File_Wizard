@@ -104,11 +104,11 @@ fn process_init_screen_input(
     is_threading: &mut bool,
 ){
 
-    //println!("Handling input for the init screen....");
+    println!("Handling input for the init screen....");
     //println!("Input in the processing: {}", input);
     match input.to_lowercase().as_str() {
         "" => {
-            //println!("Handling input for default input");
+            println!("Handling input for default input");
             let mut inp_copy: String = input.clone();
             inp_copy.push('C');
             inp_copy.push(':');
@@ -122,7 +122,7 @@ fn process_init_screen_input(
             *is_threading = true;
         },
         &_ => {
-            //println!("Handling input for custom input");
+            println!("Handling input for custom input");
             let mut inp_copy: String = input.clone();
             view.current_view = TerminalViews::Pwd;
             if !validate_url(&mut inp_copy) {

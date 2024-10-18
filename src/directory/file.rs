@@ -19,7 +19,7 @@ pub struct File {
 // Implement the File struct
 impl File {
     // Constructor that accepts a Path and creates a File instance
-    pub fn new(path: &Path, parent: Option<Arc<Mutex<Folder>>>, path_map: &mut PathMap) -> Self {
+    pub fn new(path: &Path, parent: Option<Arc<Mutex<Folder>>>) -> Self {
         // Extract the file name from the path
         let name = path.file_name()
             .and_then(|os_str| os_str.to_str())
@@ -40,9 +40,6 @@ impl File {
             parent,
             metadata,
         };
-
-        // Add the new file to the path map
-        path_map.add_file(&url, file.clone());
 
         file
     }
