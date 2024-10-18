@@ -131,6 +131,7 @@ impl TerminalView {
 
     // Define initial view for the terminal
     pub fn print_initial_screen(&self) {
+        println!("______________________________________________________________________________________________________");
         println!("\nApp: {}, Version: {}, OS: {}", CONFIG.app_name, CONFIG.version, CONFIG.os);
         println!("WELCOME TO FILE WIZARD!\n");
         println!("Enter a starting directroy or leave blank to start at root (C:/)");
@@ -138,20 +139,24 @@ impl TerminalView {
     }
 
     pub fn print_directory_screen(&self, url: &str, app_manager: &AppManager){
+        println!("______________________________________________________________________________________________________");
+        println!("Is thread on? {}", app_manager.get_is_threading());
         println!("Current Directroy {}: ", url);
         let percent : f64= (app_manager.searched_space / app_manager.used_space) * 100.0;
         let formated_percent = format!("{:.4}", percent);
-        println!("{}GB/{}GB => {}%", app_manager.searched_space, app_manager.used_space, formated_percent);
+        println!("{}GB/{}GB => {}% of total directory", app_manager.searched_space, app_manager.used_space, formated_percent);
         //self.print_direc(path_map, url, 0, 1 );
-        println!("________________________________________________");
+        println!("______________________________________________________________________________________________________");
         println!("1.) Enter to explore directory");
         println!("2.) Forward");
         println!("3.) Back");
         println!("4.) Thread On/Off");
         print!("Enter: ")
+        
     }
 
     pub fn print_choose_screen(&self){
+        println!("______________________________________________________________________________________________________");
         print!("Choose a directory: ");
     }
 }

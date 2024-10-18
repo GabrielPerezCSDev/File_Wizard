@@ -21,5 +21,3 @@ pub mod path_type;
 // Module for handling metadata extraction for files and folders
 pub mod metadata;
 
-// Module for testing a new search algo
-pub mod directory_search;

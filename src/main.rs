@@ -4,6 +4,8 @@ mod view;
 mod app_manager;
 mod view_controller;
 mod logger;
+mod directory_search;
+mod search_controller;
 
 use app_manager::app_manager::AppManager;
 use directory::path_map::PathMap;
@@ -69,28 +71,49 @@ let mut app_manager = AppManager::new(state);
 app_manager.set_view_type(state);
 app_manager.used_space = used_space_gb;
 // Spawn a background thread
+// Spawn a background thread
+// Clone directory_search so the thread can have access to it
+let directory_search_clone = Arc::clone(&app_manager.directory_search);
+let running_clone_2 = Arc::clone(&running); // Pass running flag to initial_search
+let pwd_clone = app_manager.pwd.clone(); // Clone the pwd string to use in the thread
+// Spawn a background thread for directory search
+// Spawn a background thread for directory search
 thread::spawn(move || {
+    let mut has_run = false;
+
     loop {
         if running_clone.load(Ordering::SeqCst) {
-            // Acquire a read lock to access PathMap
-            let _path_map = path_map_clone.read().unwrap();
-            // Read from the PathMap as needed
-            // For example:
-            println!("Thread is on!");
+            // Thread should be on, but check if it's already running
+            if !has_run {
+                // Acquire a lock on directory_search and start the search
+                if let Ok(directory_search) = directory_search_clone.lock() {
+                    if let Ok(pwd_read) = pwd_clone.read() {
+                        directory_search.initial_search(running_clone_2.clone(), &*pwd_read); // Pass running flag and pwd as &String
+                        has_run = true; // Mark that the search has started
+                    } else {
+                        println!("Failed to acquire read lock on pwd.");
+                    }
+                } else {
+                    println!("Failed to acquire lock on directory_search.");
+                }
+            } else {
+                // If already running, just chill
+            }
+        } else {
+            // If the thread is not supposed to be running, reset the has_run flag
+            if has_run {
+                has_run = false; // Reset the flag to allow restarting when needed
+            }
         }
-        // Sleep to prevent tight loop
-        thread::sleep(std::time::Duration::from_millis(100));
+
+        // Sleep to prevent tight loop, use a reasonable sleep interval
+        thread::sleep(std::time::Duration::from_millis(500));
     }
 });
      
     loop {
-        println!("----------------------------------------------------------------------------------------------");
-        println!("Is thread running? {}", app_manager.get_is_threading());
-        if *app_manager.get_is_threading() {
-            running.store(true, Ordering::SeqCst);
-        }else{
-            running.store(false, Ordering::SeqCst);
-        }
+        
+        running.store(*app_manager.get_is_threading(), Ordering::SeqCst);
         // Acquire a write lock to mutate PathMap
     {
         let _path_map = path_map.write().unwrap();
@@ -100,17 +123,17 @@ thread::spawn(move || {
 
         // Use the view controller to grab the input
         let input = app_manager.get_input();
-        // Process the input
-        {
-            let mut path_map_write = path_map.write().unwrap();
-            let should_continue = app_manager.process_input(input.clone(), &mut path_map_write);
-            if !should_continue {
-                break;
-            }
-        } // Write lock is released here
+         // Process the input
+    {
+        let mut path_map_write = path_map.write().unwrap();
+        let should_continue = app_manager.process_input(input.clone());
+        if !should_continue {
+            break;
+        }
+    } // Write lock is released here
+
 
         //view_controller.display_output(&format!("You entered: {}", input));
-        println!("----------------------------------------------------------------------------------------------");
     }
 
     println!("Terminating program...");

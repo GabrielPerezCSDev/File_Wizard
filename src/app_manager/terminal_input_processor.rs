@@ -8,6 +8,7 @@ use std::io::{self, Write};
 use std::path::Path;
 use std::rc::Rc;
 use std::cell::RefCell;
+use std::sync::{Arc, RwLock};
 
 pub struct TerminalInputProcessor;
 
@@ -16,8 +17,7 @@ impl InputProcessor for TerminalInputProcessor {
     fn process_input(
         &self,
         input: String,
-        _path_map: &mut PathMap,
-        pwd: &mut String,
+        pwd: Arc<RwLock<String>>,
         view: &Rc<RefCell<Box<dyn View>>>,
         is_threading: &mut bool,
     ) -> bool {
@@ -35,14 +35,12 @@ impl InputProcessor for TerminalInputProcessor {
             match terminal_view.current_view {
                 TerminalViews::Init => process_init_screen_input(
                     input,
-                    _path_map,
                     pwd,
                     terminal_view,
                     is_threading,
                 ),
                 TerminalViews::Choose => process_change_screen_input(
                     input,
-                    _path_map,
                     pwd,
                     terminal_view,
                     is_threading,
@@ -100,8 +98,7 @@ fn validate_url(url: &mut String) -> bool {
 
 fn process_init_screen_input(
     input: String,
-    _path_map: &mut PathMap,
-    pwd: &mut String,
+    pwd: Arc<RwLock<String>>,
     view: &mut TerminalView,
     is_threading: &mut bool,
 ){
@@ -115,7 +112,11 @@ fn process_init_screen_input(
             inp_copy.push('C');
             inp_copy.push(':');
             inp_copy.push('/');
-            *pwd = inp_copy.clone(); // Assign the modified `inp_copy` to `pwd`
+            if let Ok(mut pwd_write) = pwd.write() {
+                *pwd_write = inp_copy.clone(); // Assign the modified `inp_copy` to `pwd`
+            } else {
+                println!("Failed to acquire write lock on pwd.");
+            }
             view.current_view = TerminalViews::Pwd;
             *is_threading = true;
         },
@@ -127,7 +128,11 @@ fn process_init_screen_input(
                 println!("invalid URL");
             }else {
                 //println!("Success!");
-                *pwd = inp_copy.clone();
+                if let Ok(mut pwd_write) = pwd.write() {
+                    *pwd_write = inp_copy.clone(); // Assign the modified `inp_copy` to `pwd`
+                } else {
+                    println!("Failed to acquire write lock on pwd.");
+                }
                 view.current_view = TerminalViews::Pwd;
                 *is_threading = true;
             }
@@ -138,8 +143,7 @@ fn process_init_screen_input(
 
 fn process_change_screen_input(
     input: String,
-    path_map: &mut PathMap,
-    pwd: &mut String,
+    pwd: Arc<RwLock<String>>,
     view: &mut TerminalView,
     _is_threading: &mut bool,
 ){
@@ -150,16 +154,20 @@ fn process_change_screen_input(
     if validate_url(&mut inp_copy) {
         // Update the pwd
         //println!("Updating the pwd");
-        *pwd = inp_copy.clone(); // Clone input if needed elsewhere
+        if let Ok(mut pwd_write) = pwd.write() {
+            *pwd_write = inp_copy.clone(); // Assign the modified `inp_copy` to `pwd`
+        } else {
+            println!("Failed to acquire write lock on pwd.");
+        } 
         // Call to update the directory structure
         let pwd_index = 0; // Assuming pwd_index is managed elsewhere or passed in
         
-        if move_dir::validate_and_update_directory(&inp_copy, path_map, pwd_index) {
+        //if move_dir::validate_and_update_directory(&inp_copy, pwd_index) {
             // Change current view to Pwd screen
             view.current_view = TerminalViews::Pwd;
-        } else {
+        //} else {
             println!("Failed to update directory structure.");
-        }
+       // }
             
     } else {
         println!("Invalid URL");
@@ -169,7 +177,7 @@ fn process_change_screen_input(
 
 fn process_pwd_screen_input(
     input: String,
-    pwd: &mut String,
+    pwd: Arc<RwLock<String>>,
     is_threading: &mut bool,
 ){
 

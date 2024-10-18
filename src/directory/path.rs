@@ -1,7 +1,6 @@
 use std::path::Path;
 use std::fs::{self, Metadata};
 use crate::directory::path_map::PathMap;
-use once_cell::sync::Lazy;
 use crate::directory::path_type::PathType;
 use crate::directory::folder::Folder; // Use Folder from folder.rs
 use crate::directory::file::File; // Use File from file.rs

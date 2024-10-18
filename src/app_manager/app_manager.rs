@@ -5,8 +5,11 @@ use crate:: view::terminal_view::TerminalView;
 use crate::app_manager::input_processor::InputProcessor;
 use crate::app_manager::terminal_input_processor::TerminalInputProcessor;
 use crate::directory::path_map::PathMap;
+use crate::directory_search::directory_search::DirectorySearch;
+use crate::search_controller::search_controller::SearchController;
 use std::rc::Rc;
 use std::cell::RefCell;
+use std::sync::{Arc, Mutex, RwLock ,atomic::{AtomicBool, Ordering}};
 
 // Enum to represent different types of GUIs (Terminal, GUI-based, etc.)
 pub enum GuiType {
@@ -20,7 +23,9 @@ pub struct AppManager {
     input_processor: Box<dyn InputProcessor>,   // Dynamic input processor
     view_controller: Box<dyn ViewController>,   // Dynamic view controller
     view: Rc<RefCell<Box<dyn View>>>,
-    pwd: String,
+    pub directory_search: Arc<Mutex<DirectorySearch>>, //mutable and thread safe
+    search_controller: SearchController,
+    pub pwd: Arc<RwLock<String>>, //rw thread safe
     is_threading: bool,
     pub used_space: f64,
     pub searched_space: f64,
@@ -31,7 +36,11 @@ impl AppManager {
         // Initialize AppManager with placeholder values
         let input_processor: Box<dyn InputProcessor> = Box::new(TerminalInputProcessor);  // Temporary initialization
         let view: Rc<RefCell<Box<dyn View>>> = Rc::new(RefCell::new(Box::new(TerminalView::new())));                                // Temporary initialization
-        let view_controller: Box<dyn ViewController> = Box::new(TerminalViewController::new(view.clone())); //Temporary init
+        let view_controller: Box<dyn ViewController> = Box::new(TerminalViewController::new(view.clone())); //Temporary init 
+        // Add initialization for DirectorySearch and SearchController
+        let directory_search = Arc::new(Mutex::new(DirectorySearch::new()));
+        let search_controller = SearchController::new(String::new(), Arc::clone(&directory_search));
+
         let is_threading : bool = false; 
         let searched_space : f64 = 0.0;
         let mut app_manager = AppManager {
@@ -39,7 +48,9 @@ impl AppManager {
             input_processor,
             view_controller,
             view,
-            pwd: String::new(),
+            directory_search,
+            search_controller,
+            pwd: Arc::new(RwLock::new(String::new())),
             is_threading,
             used_space : 0.0,
             searched_space,
@@ -77,22 +88,43 @@ impl AppManager {
     }
 
     // Process input dynamically based on the view type and return whether to continue or not
-    pub fn process_input(&mut self, input: String, path_map: &mut PathMap) -> bool {
-        self.input_processor.process_input(input, path_map, &mut self.pwd, &self.view, &mut self.is_threading)
+    pub fn process_input(&mut self, input: String) -> bool {
+        let pwd_clone = Arc::clone(&self.pwd);
+        self.input_processor.process_input(input, pwd_clone, &self.view, &mut self.is_threading)
     }
 
+    pub fn start_search(&self, running: Arc<AtomicBool>, start_dir : &String) {
+        self.search_controller.start_initial_search(running, start_dir);
+    }
+
+    pub fn stop_search(&self) {
+        
+    }
     // Display output or view through the current view controller
     pub fn display_view(&self) {
-        self.view_controller.show_view(&self.pwd, self);
+        if let Ok(pwd_read) = self.pwd.read() {
+            self.view_controller.show_view(&pwd_read, self);
+        } else {
+            println!("Failed to acquire read lock on pwd.");
+        }
     }
 
-    pub fn get_pwd(&self) -> &str {
-        &self.pwd
+    pub fn get_pwd(&self) -> String {
+        // Acquire a read lock to access the value
+        let pwd_guard = self.pwd.read().unwrap();
+        pwd_guard.clone() // Clone the value since you can't return a reference to the locked data
     }
 
-    pub fn set_pwd(&mut self, new_pwd: String) {
-        self.pwd = new_pwd;
+   
+    pub fn set_pwd(&self, new_pwd: String) {
+        // Acquire a write lock to modify the value
+        if let Ok(mut pwd_guard) = self.pwd.write() {
+            *pwd_guard = new_pwd; // Update the value
+        } else {
+            println!("Failed to acquire write lock for pwd.");
+        }
     }
+
 
     pub fn get_is_threading(&self) -> &bool {
         &self.is_threading
